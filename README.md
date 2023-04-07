@@ -1,4 +1,4 @@
-# RENAME_ME
+# automata
 
 A watched pot never boilerplates.
 

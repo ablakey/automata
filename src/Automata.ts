@@ -6,7 +6,7 @@ export class Automata {
   ctx: CanvasRenderingContext2D;
   width: number;
   height: number;
-  cells: number[][];
+  cells: number[];
   dirtyFlags: number;
 
   constructor() {
@@ -19,21 +19,25 @@ export class Automata {
 
     canvas.width = wide ? MAJOR_AXIS_LENGTH : MAJOR_AXIS_LENGTH / (h / w);
     canvas.height = wide ? MAJOR_AXIS_LENGTH / (w / h) : MAJOR_AXIS_LENGTH;
-
+    this.ctx = canvas.getContext("2d")!;
     this.width = canvas.width;
     this.height = canvas.height;
 
-    this.ctx = canvas.getContext("2d")!;
-
-    const t0 = performance.now();
-    this.cells = new Array(this.width).fill(0).map(() => new Array(this.height));
-    console.log(performance.now() - t0);
+    this.cells = new Array(this.width * this.height).fill(0);
 
     this.forEach((x, y) => {
       if (x === 0 || x === this.width - 1 || y === 0 || y === this.height - 1) {
-        this.cells[x][y] = 0;
+        this.set(x, y, -1);
       }
-    });
+    }, false);
+  }
+
+  get(x: number, y: number) {
+    return this.cells[y * this.width + x];
+  }
+
+  set(x: number, y: number, value: number) {
+    this.cells[y * this.width + x] = value;
   }
 
   forEach(fn: (x: number, y: number) => void, skipEdges = true) {
@@ -51,17 +55,10 @@ export class Automata {
   }
 
   draw() {
-    this.ctx.fillStyle = "rgba(0,0,0,1)";
     this.forEach((x, y) => {
-      this.cells[x][y] = 0;
+      this.ctx.fillStyle = this.get(x, y) === -1 ? "rgba(0,0,0,1)" : "rgba(0,100,0,1)";
       this.ctx.fillRect(x, y, 1, 1);
-      // this.palette[this.cells.data[x][y]];
-      // if (this.cells[x][y] === 0) {
-      // } else {
-      //   this.ctx.fillStyle = "rgba(0,100,50,1)";
-      //   this.ctx.fillRect(x, y, 1, 1);
-      // }
-    });
+    }, false);
   }
 
   tick() {

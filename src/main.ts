@@ -1,18 +1,7 @@
-import { Sandbox } from "./sandbox";
+import { Engine } from "./Engine";
 
 function main() {
-  const sandbox = new Sandbox();
-
-  function tick(stamp: number) {
-    for (let x = 0; x < sandbox.width * sandbox.height; x++) {
-      sandbox.buffer[x] = Math.random() * 0xffffffff;
-    }
-
-    sandbox.draw();
-    requestAnimationFrame(tick);
-  }
-
-  requestAnimationFrame(tick);
+  const engine = new Engine();
 }
 
 window.onload = main;

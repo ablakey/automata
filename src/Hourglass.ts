@@ -1,71 +1,88 @@
-import { Engine } from "./Engine";
+import { Engine, Position } from "./Engine";
 
-const cells = {
-  Empty: 0xffe8c9b2,
-  Sand: 0xff267fee,
-  Wall: 0xff000000,
-};
+const Empty = 0xffe8c9b2;
+const Sand = 0xff267fee;
+const Wall = 0xff000000;
+const Generator = 0xffff0000;
 
 export class Hourglass {
   engine: Engine;
 
   constructor() {
-    this.engine = new Engine(this.tick.bind(this));
+    this.engine = new Engine(this.tick.bind(this), this.onClick.bind(this));
 
-    for (let x = 0; x < this.engine.width; x++) {
-      for (let y = 0; y < this.engine.height; y++) {
-        // Left and Right walls.
-        if (x === 0 || x === this.engine.width - 1) {
-          this.engine.set([x, y], cells.Wall);
-          continue;
-        }
+    // this.engine.fillRect([100, 30], 1, 100, Sand);
 
-        // Top and bottom walls.
-        if (y === 0 || y === this.engine.height - 1) {
-          this.engine.set([x, y], cells.Wall);
-          continue;
-        }
+    this.engine.set([143, 10], Generator);
+    this.engine.set([118, 30], Generator);
+    this.engine.set([78, 50], Generator);
+    this.engine.set([30, 40], Generator);
+    this.engine.set([180, 40], Generator);
+    this.engine.set([160, 40], Generator);
+    this.engine.set([10, 40], Generator);
+    this.engine.set([40, 40], Generator);
+    this.engine.set([60, 40], Generator);
 
-        this.engine.set([x, y], Math.random() < 0.9 ? cells.Empty : cells.Sand);
-      }
-    }
+    this.engine.fillRect([20, 90], 30, 10, Wall);
+    this.engine.fillRect([120, 90], 60, 6, Wall);
+    this.engine.fillRect([100, 155], 5, 40, Wall);
+  }
+
+  onClick(pos: Position) {
+    this.engine.fillRect(pos, 3, 3, Sand);
   }
 
   tick() {
-    return;
     // Need to use these classic loops.  A `forEach` abstraction is about 10x slower.
     // We don't iterate over the wals.
     for (let x = 1; x < this.engine.width - 1; x++) {
       for (let y = 1; y < this.engine.height - 1; y++) {
         const kernel = this.engine.get([x, y]);
+        const { cell, left, right, bot, top, botleft, botright } = kernel;
 
         // Ignore cells that have already been processed.
-        if (kernel.cell.touched) {
+        if (cell.touched && cell.value !== Empty) {
           continue;
         }
 
-        // Move down.
-        if (kernel.cell.value === cells.Sand && kernel.down?.value === cells.Empty) {
-          this.engine.set(kernel.cell.pos, cells.Empty);
-          this.engine.set(kernel.down!.pos, cells.Sand);
+        // Generator?
+        if (cell.value === Generator && bot.value === Empty && Math.random() > 0.1) {
+          this.engine.set(bot.pos, Sand);
+        }
+
+        // Not sand?
+        if (cell.value !== Sand) {
           continue;
         }
 
-        // Move to side.
-        if (kernel.cell.value === cells.Sand && kernel.up?.value === cells.Empty && kernel.down?.value === cells.Sand) {
-          // Clear self. It's being moved.
-          this.engine.set(kernel.cell.pos, cells.Empty);
+        // Move down?
+        if (bot.value === Empty) {
+          this.engine.set(cell.pos, Empty);
+          this.engine.set(kernel.bot.pos, Sand);
+          continue;
+        }
 
-          if (kernel.left?.value === cells.Empty && kernel.right?.value === cells.Empty) {
-            // random direction.
-            this.engine.set(Math.random() > 0.5 ? kernel.left!.pos : kernel.right!.pos, cells.Sand);
-          } else if (kernel.left?.value === cells.Empty && kernel.right) {
-            // Go right.
-            this.engine.set(kernel.right!.pos, cells.Sand);
-          } else if (kernel.right?.value === cells.Empty && kernel.left) {
-            // Go left.
-            this.engine.set(kernel.left!.pos, cells.Sand);
-          }
+        const canFallLeft = botleft.value === Empty && bot.value !== Empty;
+        const canFallRight = botright.value === Empty && bot.value !== Empty;
+
+        if (canFallLeft && canFallRight) {
+          this.engine.set(cell.pos, Empty);
+          this.engine.set(Math.random() > 0.5 ? kernel.botleft.pos : kernel.botright.pos, Sand);
+          continue;
+        }
+
+        // Fall left?
+        if (canFallLeft) {
+          this.engine.set(cell.pos, Empty);
+          this.engine.set(kernel.botleft.pos, Sand);
+          continue;
+        }
+
+        // Fall right?
+        if (canFallRight) {
+          this.engine.set(cell.pos, Empty);
+          this.engine.set(kernel.botright.pos, Sand);
+          continue;
         }
       }
     }

@@ -1,8 +1,8 @@
-const FPS = 1;
+const FPS = 60;
 
 const PIXEL_SCALE = 4;
 
-type Position = [number, number];
+export type Position = [number, number];
 
 type Cell = {
   pos: Position;
@@ -12,13 +12,20 @@ type Cell = {
 
 type Kernel = {
   cell: Cell;
-  up: Cell;
-  down: Cell;
+  top: Cell;
+  bot: Cell;
   left: Cell;
   right: Cell;
+  topleft: Cell;
+  topright: Cell;
+  botleft: Cell;
+  botright: Cell;
 };
 
 export class Engine {
+  public Wall = 0xff000000;
+  public Empty = 0xffe8c9b2;
+
   // Image and data.
   public readonly width: number;
   public readonly height: number;
@@ -32,7 +39,7 @@ export class Engine {
   private accumulatedTime = 0;
   private tickCallback: VoidFunction;
 
-  constructor(tickCallback: () => void) {
+  constructor(tickCallback: () => void, onClick: (pos: Position) => void) {
     // Initialize image and data.
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
     this.width = Math.floor(canvas.offsetWidth / PIXEL_SCALE);
@@ -43,6 +50,23 @@ export class Engine {
     this.imageData = this.ctx.createImageData(this.width, this.height);
     this.values = new Uint32Array(this.imageData.data.buffer);
     this.touched = new Uint8Array(this.width * this.height);
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (e.buttons) {
+        onClick([Math.floor(e.clientX / PIXEL_SCALE), Math.floor(e.clientY / PIXEL_SCALE)]);
+      }
+    });
+
+    // Add walls around the area.
+    for (let x = 0; x < this.width; x++) {
+      for (let y = 0; y < this.height; y++) {
+        let value = this.Empty;
+        if (x === 0 || y === 0 || x === this.width - 1 || y === this.height - 1) {
+          value = this.Wall;
+        }
+        this.values[y * this.width + x] = value;
+      }
+    }
 
     // Initialize and begin loop.
     this.tickCallback = tickCallback;
@@ -80,16 +104,33 @@ export class Engine {
 
     return {
       cell: this.getCell(pos)!,
-      up: this.getCell([x, y - 1]),
-      down: this.getCell([x, y + 1]),
+      top: this.getCell([x, y - 1]),
+      bot: this.getCell([x, y + 1]),
       left: this.getCell([x - 1, y]),
       right: this.getCell([x + 1, y]),
+      topleft: this.getCell([x - 1, y - 1]),
+      topright: this.getCell([x + 1, y - 1]),
+      botleft: this.getCell([x - 1, y + 1]),
+      botright: this.getCell([x + 1, y + 1]),
     };
   }
 
   set(pos: Position, value: number) {
+    // Cannot set on wall or out of bounds.
+    if (pos[0] === 0 || pos[1] === 0 || pos[0] === this.width || pos[1] === this.height) {
+      return;
+    }
+
     const idx = this.width * pos[1] + pos[0];
     this.values[idx] = value;
     this.touched[idx] = 1;
+  }
+
+  fillRect(pos: Position, width: number, height: number, value: number) {
+    for (let x = pos[0]; x < pos[0] + width; x++) {
+      for (let y = pos[1]; y < pos[1] + height; y++) {
+        this.set([x, y], value);
+      }
+    }
   }
 }

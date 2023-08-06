@@ -35,6 +35,6 @@ function rule(kernel: Kernel, engine: Engine) {
 }
 
 export const Sand: CellDescription = {
-  value: 0xffff0000,
+  value: 0xff267fee,
   rule,
 };

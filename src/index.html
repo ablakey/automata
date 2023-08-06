@@ -2,13 +2,23 @@
   <head>
     <title>automata</title>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no" />
   </head>
   <body>
-    <canvas id="canvas"></canvas>
+    <div>
+      <canvas width="150" height="200"></canvas>
+      <div>
+        <select name="pets" id="pet-select">
+          <option value="">--Please choose an option--</option>
+          <option value="dog">Dog</option>
+          <option value="cat">Cat</option>
+          <option value="hamster">Hamster</option>
+          <option value="parrot">Parrot</option>
+          <option value="spider">Spider</option>
+          <option value="goldfish">Goldfish</option>
+        </select>
+      </div>
+    </div>
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <script type="module" src="main.ts"></script>
   </body>

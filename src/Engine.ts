@@ -2,18 +2,15 @@ const FPS = 60;
 
 const PIXEL_SCALE = 4;
 
-export type Position = [number, number];
+import { CellType, cellDescriptions, cellValueMap } from "./cells";
 
-type Cell = {
-  pos: Position;
-  value: number;
-};
+export type Position = [number, number];
 
 /**
  * Read-only accessor for a cell and its surrounding cells.
  * Getters are lazy for optimization. No point doing lookups for data we don't use.
  */
-class Kernel {
+export class Kernel {
   private engine: Engine;
   private readonly x: number;
   private readonly y: number;
@@ -73,14 +70,9 @@ export class Engine {
   // Simulation loop.
   private lastTime = 0;
   private accumulatedTime = 0;
-  private tickCallback: VoidFunction;
+  // private tickCallback: VoidFunction;
 
-  constructor(config: {
-    tickCallback: () => void;
-    onClick: (pos: Position) => void;
-    wallValue: number;
-    emptyValue: number;
-  }) {
+  constructor() {
     // Initialize image and data.
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
     this.width = Math.floor(canvas.offsetWidth / PIXEL_SCALE);
@@ -92,31 +84,30 @@ export class Engine {
     this.values = new Uint32Array(this.imageData.data.buffer);
     this.touched = new Uint8Array(this.width * this.height);
 
-    canvas.addEventListener("mousemove", (e) => {
-      if (e.buttons) {
-        config.onClick([Math.floor(e.clientX / PIXEL_SCALE), Math.floor(e.clientY / PIXEL_SCALE)]);
-      }
-    });
+    // canvas.addEventListener("mousemove", (e) => {
+    //   if (e.buttons) {
+    //     config.onClick([Math.floor(e.clientX / PIXEL_SCALE), Math.floor(e.clientY / PIXEL_SCALE)]);
+    //   }
+    // });
 
-    // Add walls around the area.
+    // Initialize the area with walls and empty.
     for (let x = 0; x < this.width; x++) {
       for (let y = 0; y < this.height; y++) {
-        let value = config.emptyValue;
+        let value = cellDescriptions.Empty.value;
         if (x === 0 || y === 0 || x === this.width - 1 || y === this.height - 1) {
-          value = config.wallValue;
+          value = cellDescriptions.Wall.value;
         }
         this.values[y * this.width + x] = value;
       }
     }
 
     // Initialize and begin loop.
-    this.tickCallback = config.tickCallback;
     requestAnimationFrame(this.renderFrame.bind(this));
 
     console.log(`Initiated. Width: ${this.width}, Height: ${this.height}`);
   }
 
-  renderFrame(elapsed: number) {
+  private renderFrame(elapsed: number) {
     const delta = elapsed - this.lastTime;
     this.lastTime = elapsed;
     this.accumulatedTime += delta;
@@ -124,8 +115,19 @@ export class Engine {
     if (this.accumulatedTime > 1000 / FPS) {
       // Clear the flags each tick.
       this.touched = new Uint8Array(this.width * this.height);
+
+      for (let x = 1; x < this.width - 1; x++) {
+        for (let y = 1; y < this.height - 1; y++) {
+          if (!this.touched[y * this.width + x]) {
+            const value = this.values[y * this.width + x];
+            const kernel = new Kernel([x, y], this);
+            const name = cellValueMap[value];
+            cellDescriptions[name].rule(kernel, this);
+          }
+        }
+      }
+
       this.accumulatedTime -= Math.max(1000 / FPS, 0);
-      this.tickCallback();
       this.ctx.putImageData(this.imageData, 0, 0);
     }
 
@@ -140,11 +142,11 @@ export class Engine {
    * - leaving `touched` as an integer rather than a boolean saves about 15%.
    * - Eliminating `touched` altogether is about 50%.
    */
-  get(pos: Position): Cell {
+  get(pos: Position): { pos: Position; type: CellType } {
     const idx = this.width * pos[1] + pos[0];
     return {
       pos,
-      value: this.values[idx],
+      type: cellValueMap[this.values[idx]] as CellType,
     };
   }
 
@@ -160,21 +162,22 @@ export class Engine {
     }
   }
 
-  set(pos: Position, value: number) {
+  set(pos: Position, type: CellType) {
     // Cannot set on wall or out of bounds.
     if (pos[0] < 1 || pos[1] < 1 || pos[0] >= this.width - 1 || pos[1] >= this.height - 1) {
       return;
     }
 
     const idx = this.width * pos[1] + pos[0];
+    const value = cellDescriptions[type].value;
     this.values[idx] = value;
     this.touched[idx] = 1;
   }
 
-  fillRect(pos: Position, width: number, height: number, value: number) {
+  fillRect(pos: Position, width: number, height: number, type: CellType) {
     for (let x = pos[0]; x < pos[0] + width; x++) {
       for (let y = pos[1]; y < pos[1] + height; y++) {
-        this.set([x, y], value);
+        this.set([x, y], type);
       }
     }
   }

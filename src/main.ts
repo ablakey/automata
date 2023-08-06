@@ -1,7 +1,8 @@
+import { Engine } from "./Engine";
 import { Hourglass } from "./Hourglass";
 
 function main() {
-  const hourglass = new Hourglass();
+  const engine = new Engine();
 }
 
 window.onload = main;

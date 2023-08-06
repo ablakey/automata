@@ -20,15 +20,21 @@ export class Hourglass {
 
     // this.engine.fillRect([100, 30], 1, 100, Sand);
 
-    this.engine.set([143, 10], values.Generator);
-    this.engine.set([118, 30], values.Generator);
-    this.engine.set([78, 50], values.Generator);
-    this.engine.set([30, 40], values.Generator);
-    this.engine.set([180, 40], values.Generator);
-    this.engine.set([160, 40], values.Generator);
-    this.engine.set([10, 40], values.Generator);
-    this.engine.set([40, 40], values.Generator);
-    this.engine.set([60, 40], values.Generator);
+    this.engine.set([143, 1], values.Generator);
+    this.engine.set([118, 1], values.Generator);
+    this.engine.set([78, 1], values.Generator);
+    this.engine.set([30, 1], values.Generator);
+    this.engine.set([180, 1], values.Generator);
+    this.engine.set([160, 1], values.Generator);
+    this.engine.set([10, 1], values.Generator);
+    this.engine.set([0, 1], values.Generator);
+    this.engine.set([60, 1], values.Generator);
+    this.engine.set([70, 1], values.Generator);
+    this.engine.set([75, 1], values.Generator);
+    this.engine.set([80, 1], values.Generator);
+    this.engine.set([90, 1], values.Generator);
+    this.engine.set([100, 1], values.Generator);
+    this.engine.set([110, 1], values.Generator);
 
     this.engine.fillRect([20, 90], 30, 10, values.Wall);
     this.engine.fillRect([120, 90], 60, 6, values.Wall);
@@ -51,8 +57,10 @@ export class Hourglass {
       // }
 
       // Generator?
-      if (cell.value === values.Generator && bot.value === values.Empty && Math.random() > 0.9) {
+      if (cell.value === values.Generator && bot.value === values.Empty && Math.random() > 0.0) {
         this.engine.set(bot.pos, values.Sand);
+        this.engine.set(botleft.pos, values.Sand);
+        this.engine.set(botright.pos, values.Sand);
       }
 
       // Not sand?

@@ -9,6 +9,10 @@ type Cell = {
   value: number;
 };
 
+/**
+ * Read-only accessor for a cell and its surrounding cells.
+ * Getters are lazy for optimization. No point doing lookups for data we don't use.
+ */
 class Kernel {
   private engine: Engine;
   private readonly x: number;
@@ -158,7 +162,7 @@ export class Engine {
 
   set(pos: Position, value: number) {
     // Cannot set on wall or out of bounds.
-    if (pos[0] === 0 || pos[1] === 0 || pos[0] === this.width || pos[1] === this.height) {
+    if (pos[0] < 1 || pos[1] < 1 || pos[0] >= this.width - 1 || pos[1] >= this.height - 1) {
       return;
     }
 

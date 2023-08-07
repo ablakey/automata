@@ -9,15 +9,26 @@ html {
 
 body {
   margin: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  display: flex;
+  justify-content: center;
 }
 
-#canvas {
-  width: 100%;
+.frame {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  width: 100%;
+  max-width: 500px;
+}
+
+.canvas {
   image-rendering: pixelated;
+  aspect-ratio: 2/3;
+  border: 1px solid red;
+  width: 100%;
+}
+
+.ui {
+  border: 1px solid blue;
+  flex-grow: 1;
 }

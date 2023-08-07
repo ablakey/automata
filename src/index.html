@@ -5,48 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=no" />
   </head>
   <body>
-    <h1>The Automata</h1>
-    <div id="container">
-      <canvas></canvas>
-    </div>
-    <div id="controls">
-      <div id="arrows">
-        <div>
-          <button id="buttonLeft" class="pushable left">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">󿭲</span>
-          </button>
-        </div>
-        <div>
-          <button id="buttonUp" class="pushable up">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">󿭳</span>
-          </button>
-          <button id="buttonDown" class="pushable down">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">󿭱</span>
-          </button>
-        </div>
-        <div>
-          <button id="buttonRight" class="pushable right">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">󿭰</span>
-          </button>
-        </div>
+    <div id="frame">
+      <h1>Automata</h1>
+      <div id="viewport">
+        <canvas width="200" height="200"></canvas>
       </div>
-      <div id="buttons">
-        <button id="buttonAction" class="pushable action">
-          <span class="shadow"></span>
-          <span class="edge"></span>
-          <span class="front">ACTION</span>
-        </button>
+      <div id="controls">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
+      <div id="about">About | Help</div>
     </div>
-    <a id="about" href="about.html">About | Help</a>
+    <!-- <a id="about" href="about.html">About | Help</a> -->
     <link rel="stylesheet" href="styles.css" type="text/css" />
     <script type="module" src="main.ts"></script>
   </body>

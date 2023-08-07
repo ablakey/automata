@@ -1,8 +1,5 @@
-const FPS = 60;
-
-const PIXEL_SCALE = 4;
-
 import { CellType, cellDescriptions, cellValueMap } from "./cells";
+import { FPS, PIXEL_SCALE } from "./config";
 
 export type Position = [number, number];
 

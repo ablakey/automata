@@ -15,6 +15,7 @@ html {
 }
 
 body {
+  height: 100%;
   display: flex;
   justify-content: center;
   background-color: #e6cea0;
@@ -34,11 +35,30 @@ body * {
   width: 100%;
 }
 
-#canvas {
-  image-rendering: pixelated;
+#viewport {
+  flex-grow: 1;
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+#canvas {
+  image-rendering: pixelated;
+}
+
+#controls {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 16px;
+}
+
+#controls > div {
+  border: 1px solid red;
+  width: 40px;
+  height: 40px;
+  margin: 4px;
 }
 
 h1 {
@@ -59,19 +79,4 @@ p {
   margin-top: auto;
   text-decoration: unset;
   margin-bottom: 16px;
-}
-
-#controls {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 16px;
-}
-
-#controls > div {
-  border: 1px solid red;
-  width: 40px;
-  height: 40px;
-  margin: 4px;
 }

@@ -1,8 +1,6 @@
 export const FPS = 60;
 
-export const PIXEL_SCALE = 4;
-
-export const CANVAS_SIZE = 200;
+export const SIM_SIZE = 200;
 
 export const BUTTONS = [
   { name: "Up", codes: ["ArrowUp", "KeyW"] },

@@ -22,12 +22,11 @@ body {
 
 body * {
   font-family: "Apple", serif;
-  max-width: 600px;
+  max-width: 500px;
   color: #000;
 }
 
 #frame {
-  border: 1px solid green;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,16 +34,11 @@ body * {
   width: 100%;
 }
 
-#viewport {
-  flex-grow: 1;
+#canvas {
+  image-rendering: pixelated;
   width: 100%;
-  border: 1px solid blue;
-}
-
-canvas {
-  aspect-ratio: 1;
-  object-fit: contain;
-  border: 1px solid red;
+  display: flex;
+  justify-content: center;
 }
 
 h1 {

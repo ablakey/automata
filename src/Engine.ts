@@ -1,5 +1,5 @@
 import { CellType, cellDescriptions, cellValueMap } from "./cells";
-import { FPS, PIXEL_SCALE } from "./config";
+import { CANVAS_SIZE, FPS, PIXEL_SCALE } from "./config";
 
 export type Position = [number, number];
 
@@ -57,8 +57,6 @@ export class Kernel {
 
 export class Engine {
   // Image and data.
-  public readonly width: number;
-  public readonly height: number;
   private ctx: CanvasRenderingContext2D;
   private imageData: ImageData;
   private values: Uint32Array;
@@ -72,15 +70,16 @@ export class Engine {
   constructor() {
     // Initialize image and data.
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
-    this.width = Math.floor(canvas.offsetWidth / PIXEL_SCALE);
-    this.height = Math.floor(canvas.offsetHeight / PIXEL_SCALE);
-    canvas.width = this.width;
-    canvas.height = this.height;
     this.ctx = canvas.getContext("2d")!;
-    this.imageData = this.ctx.createImageData(this.width, this.height);
+    this.imageData = this.ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
     this.values = new Uint32Array(this.imageData.data.buffer);
-    this.touched = new Uint8Array(this.width * this.height);
+    this.touched = new Uint8Array(CANVAS_SIZE * CANVAS_SIZE);
 
+    // Set up canvas size. Trying to do this in CSS is a migraine. aspect-ratio is super weak.
+    const frame = document.querySelector<HTMLDivElement>("#frame")!;
+    const canvasSize = Math.min(frame.offsetWidth, frame.offsetHeight);
+    canvas.style.width = `${canvasSize}px`;
+    canvas.style.height = `${canvasSize}px`;
     // canvas.addEventListener("mousemove", (e) => {
     //   if (e.buttons) {
     //     config.onClick([Math.floor(e.clientX / PIXEL_SCALE), Math.floor(e.clientY / PIXEL_SCALE)]);
@@ -88,20 +87,18 @@ export class Engine {
     // });
 
     // Initialize the area with walls and empty.
-    for (let x = 0; x < this.width; x++) {
-      for (let y = 0; y < this.height; y++) {
+    for (let x = 0; x < CANVAS_SIZE; x++) {
+      for (let y = 0; y < CANVAS_SIZE; y++) {
         let value = cellDescriptions.Empty.value;
-        if (x === 0 || y === 0 || x === this.width - 1 || y === this.height - 1) {
+        if (x === 0 || y === 0 || x === CANVAS_SIZE - 1 || y === CANVAS_SIZE - 1) {
           value = cellDescriptions.Wall.value;
         }
-        this.values[y * this.width + x] = value;
+        this.values[y * CANVAS_SIZE + x] = value;
       }
     }
 
     // Initialize and begin loop.
     requestAnimationFrame(this.renderFrame.bind(this));
-
-    console.log(`Initiated. Width: ${this.width}, Height: ${this.height}`);
   }
 
   private renderFrame(elapsed: number) {
@@ -111,12 +108,12 @@ export class Engine {
 
     if (this.accumulatedTime > 1000 / FPS) {
       // Clear the flags each tick.
-      this.touched = new Uint8Array(this.width * this.height);
+      this.touched = new Uint8Array(CANVAS_SIZE * CANVAS_SIZE);
 
-      for (let x = 1; x < this.width - 1; x++) {
-        for (let y = 1; y < this.height - 1; y++) {
-          if (!this.touched[y * this.width + x]) {
-            const value = this.values[y * this.width + x];
+      for (let x = 1; x < CANVAS_SIZE - 1; x++) {
+        for (let y = 1; y < CANVAS_SIZE - 1; y++) {
+          if (!this.touched[y * CANVAS_SIZE + x]) {
+            const value = this.values[y * CANVAS_SIZE + x];
             const kernel = new Kernel([x, y], this);
             const name = cellValueMap[value];
             cellDescriptions[name].rule(kernel, this);
@@ -140,7 +137,7 @@ export class Engine {
    * - Eliminating `touched` altogether is about 50%.
    */
   get(pos: Position): { pos: Position; type: CellType } {
-    const idx = this.width * pos[1] + pos[0];
+    const idx = CANVAS_SIZE * pos[1] + pos[0];
     return {
       pos,
       type: cellValueMap[this.values[idx]] as CellType,
@@ -149,9 +146,9 @@ export class Engine {
 
   forEach(callback: (kernel: Kernel) => void) {
     // We don't iterate over the wals.
-    for (let x = 1; x < this.width - 1; x++) {
-      for (let y = 1; y < this.height - 1; y++) {
-        if (!this.touched[y * this.width + x]) {
+    for (let x = 1; x < CANVAS_SIZE - 1; x++) {
+      for (let y = 1; y < CANVAS_SIZE - 1; y++) {
+        if (!this.touched[y * CANVAS_SIZE + x]) {
           const k = new Kernel([x, y], this);
           callback(k);
         }
@@ -161,11 +158,11 @@ export class Engine {
 
   set(pos: Position, type: CellType) {
     // Cannot set on wall or out of bounds.
-    if (pos[0] < 1 || pos[1] < 1 || pos[0] >= this.width - 1 || pos[1] >= this.height - 1) {
+    if (pos[0] < 1 || pos[1] < 1 || pos[0] >= CANVAS_SIZE - 1 || pos[1] >= CANVAS_SIZE - 1) {
       return;
     }
 
-    const idx = this.width * pos[1] + pos[0];
+    const idx = CANVAS_SIZE * pos[1] + pos[0];
     const value = cellDescriptions[type].value;
     this.values[idx] = value;
     this.touched[idx] = 1;

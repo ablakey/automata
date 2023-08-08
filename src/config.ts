@@ -1,6 +1,6 @@
-export const FPS = 60;
+export const FPS = 30;
 
-export const SIM_SIZE = 200;
+export const SIM_SIZE = 150;
 
 export const BUTTONS = [
   { name: "Up", codes: ["ArrowUp", "KeyW"] },

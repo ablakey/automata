@@ -4,7 +4,7 @@ import { Kernel } from "../Kernel";
 
 function rule(kernel: Kernel, engine: Engine) {}
 
-export const Empty: CellDescription = {
-  value: 0xffe8c9b2,
+export const Dirt: CellDescription = {
+  value: 0xff004080,
   rule,
 };

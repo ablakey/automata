@@ -1,5 +1,6 @@
 import { CellDescription } from ".";
-import { Engine, Kernel } from "../Engine";
+import { Engine } from "../Engine";
+import { Kernel } from "../Kernel";
 
 function rule(kernel: Kernel, engine: Engine) {
   if (kernel.bot.type === "Empty") {

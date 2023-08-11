@@ -6,12 +6,45 @@ export type Position = [number, number];
 
 type Cell = { pos: Position; type: CellName };
 
+class DoubleBuffer {
+  private imageA: ImageData;
+  private bufferA: Uint32Array;
+
+  private imageB: ImageData;
+  private bufferB: Uint32Array;
+
+  private useA = true;
+
+  constructor(w: number, h: number) {
+    this.imageA = new ImageData(w, h);
+    this.bufferA = new Uint32Array(this.imageA.data.buffer);
+
+    this.imageB = new ImageData(w, h);
+    this.bufferB = new Uint32Array(this.imageB.data.buffer);
+  }
+
+  get current() {
+    return this.useA ? this.bufferA : this.bufferB;
+  }
+
+  get other() {
+    return this.useA ? this.bufferB : this.bufferA;
+  }
+
+  get imageData() {
+    return this.useA ? this.imageA : this.imageB;
+  }
+
+  swap() {
+    this.current.set(this.other);
+    this.useA = !this.useA;
+  }
+}
+
 export class Engine {
   // Image and data.
   private ctx: CanvasRenderingContext2D;
-  private imageData: ImageData;
-  private values: Uint32Array;
-  private touched: Uint8Array;
+  private doubleBuffer: DoubleBuffer;
 
   // Simulation loop.
   private lastTime = 0;
@@ -23,9 +56,8 @@ export class Engine {
     canvas.width = SIM_SIZE;
     canvas.height = SIM_SIZE;
     this.ctx = canvas.getContext("2d")!;
-    this.imageData = this.ctx.createImageData(SIM_SIZE, SIM_SIZE);
-    this.values = new Uint32Array(this.imageData.data.buffer);
-    this.touched = new Uint8Array(SIM_SIZE * SIM_SIZE);
+
+    this.doubleBuffer = new DoubleBuffer(SIM_SIZE, SIM_SIZE);
 
     this.resizeCanvas();
 
@@ -36,12 +68,13 @@ export class Engine {
         if (x === 0 || y === 0 || x === SIM_SIZE - 1 || y === SIM_SIZE - 1) {
           value = cellDescriptions.Wall.value;
         }
-        this.values[y * SIM_SIZE + x] = value;
+        this.doubleBuffer.current[y * SIM_SIZE + x] = value;
+        this.doubleBuffer.other[y * SIM_SIZE + x] = value;
       }
     }
 
     // Initialize and begin loop.
-    requestAnimationFrame(this.renderFrame.bind(this));
+    requestAnimationFrame(this.frameRequestCallback.bind(this));
   }
 
   /**
@@ -61,30 +94,26 @@ export class Engine {
     frame.style.flexGrow = "unset";
   }
 
-  private renderFrame(elapsed: number) {
+  private frameRequestCallback(elapsed: number) {
     const delta = elapsed - this.lastTime;
     this.lastTime = elapsed;
     this.accumulatedTime += delta;
 
     if (this.accumulatedTime > 1000 / FPS) {
-      // Clear the flags each tick.
-      this.touched = new Uint8Array(SIM_SIZE * SIM_SIZE);
-
-      this.forEach((kernel) => {
-        if (!this.touched[kernel.cell.pos[1] * SIM_SIZE + kernel.cell.pos[0]]) {
-          cellDescriptions[kernel.cell.type].rule(kernel, this);
-        }
-      });
-
+      this.tick();
       this.accumulatedTime -= Math.max(1000 / FPS, 0);
-      this.ctx.putImageData(this.imageData, 0, 0);
     }
 
-    requestAnimationFrame(this.renderFrame.bind(this));
+    requestAnimationFrame(this.frameRequestCallback.bind(this));
   }
 
-  private isOutOfBounds(pos: Position) {
-    return pos[0] < 1 || pos[1] < 1 || pos[0] >= SIM_SIZE - 1 || pos[1] >= SIM_SIZE - 1;
+  private tick() {
+    this.forEach((kernel) => {
+      cellDescriptions[kernel.cell.type].rule(kernel, this);
+    });
+
+    this.doubleBuffer.swap();
+    this.ctx.putImageData(this.doubleBuffer.imageData, 0, 0);
   }
 
   forEach(callback: (kernel: Kernel) => void) {
@@ -96,19 +125,11 @@ export class Engine {
     }
   }
 
-  /**
-   * This is an incredibly hot function. Called for every cell.  Amazingly, some basic cases affect performance
-   * significantly:
-   *
-   * - `idx` vs. doing the basic math twice saves about 10%.
-   * - leaving `touched` as an integer rather than a boolean saves about 15%.
-   * - Eliminating `touched` altogether is about 50%.
-   */
   get(pos: Position): Cell {
     const idx = SIM_SIZE * pos[1] + pos[0];
     return {
       pos,
-      type: cellValueMap[this.values[idx]] as CellName,
+      type: cellValueMap[this.doubleBuffer.current[idx]] as CellName,
     };
   }
 
@@ -116,15 +137,15 @@ export class Engine {
     if (!Array.isArray(pos)) {
       pos = pos.pos;
     }
+
     // Cannot set on wall or out of bounds.
-    if (this.isOutOfBounds(pos)) {
+    if (pos[0] < 1 || pos[1] < 1 || pos[0] >= SIM_SIZE - 1 || pos[1] >= SIM_SIZE - 1) {
       return;
     }
 
     const idx = SIM_SIZE * pos[1] + pos[0];
     const value = cellDescriptions[type].value;
-    this.values[idx] = value;
-    this.touched[idx] = 1;
+    this.doubleBuffer.other[idx] = value;
   }
 
   fillRect(pos: Position, width: number, height: number, type: CellName) {

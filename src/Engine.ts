@@ -1,15 +1,16 @@
 import { Cell } from "./Cell";
 import { CellType, cellDescriptions } from "./cells";
-import { SIM_SIZE, FPS } from "./config";
+import { SIM_SIZE, FPS, ITERATION_METHOD } from "./config";
 
 export type Position = [number, number];
 
 export class Engine {
   // Image and data.
+  public generation = 0;
   private ctx: CanvasRenderingContext2D;
   private imageData: ImageData;
   private buffer: Uint32Array;
-  private cells: Cell[];
+  private cells: Cell[] = [];
 
   // Simulation loop.
   private lastTime = 0;
@@ -22,8 +23,7 @@ export class Engine {
     canvas.height = SIM_SIZE;
     this.ctx = canvas.getContext("2d")!;
     this.imageData = this.ctx.createImageData(SIM_SIZE, SIM_SIZE);
-
-    this.cells = [];
+    this.buffer = new Uint32Array(this.imageData.data.buffer);
 
     this.resizeCanvas();
 
@@ -31,7 +31,10 @@ export class Engine {
     for (let x = 0; x < SIM_SIZE; x++) {
       for (let y = 0; y < SIM_SIZE; y++) {
         const isWall = x === 0 || y === 0 || x === SIM_SIZE - 1 || y === SIM_SIZE - 1;
-        this.set([x, y], isWall ? "Wall" : "Empty");
+        const type = isWall ? "Wall" : "Empty";
+        const idx = y * SIM_SIZE + x;
+        this.cells[idx] = new Cell([x, y], type, this);
+        this.buffer[idx] = cellDescriptions[type].value;
       }
     }
 
@@ -70,18 +73,56 @@ export class Engine {
   }
 
   private tick() {
-    this.forEach((kernel) => {
-      cellDescriptions[kernel.cell.type].rule(kernel, this);
+    this.generation++;
+    this.forEach((cell) => {
+      cellDescriptions[cell.type].rule(cell, this);
     });
 
-    // this.ctx.putImageData(this.doubleBuffer.imageData, 0, 0);
+    this.ctx.putImageData(this.imageData, 0, 0);
+  }
+
+  private forEachRandom(callback: (cell: Cell) => void) {
+    const arr = Array.from(Array(SIM_SIZE * SIM_SIZE).keys());
+
+    let j: number, x: number, index: number;
+    for (index = arr.length - 1; index > 0; index--) {
+      j = Math.floor(Math.random() * (index + 1));
+      x = arr[index];
+      arr[index] = arr[j];
+      arr[j] = x;
+    }
+    arr.forEach((c) => callback(this.cells[c]));
+  }
+
+  private forEachTopDown(callback: (cell: Cell) => void) {
+    for (let x = 1; x < SIM_SIZE - 1; x++) {
+      for (let y = 1; y < SIM_SIZE - 1; y++) {
+        const cell = this.get([x, y]);
+        if (!cell.touched) {
+          callback(this.get([x, y]));
+        }
+      }
+    }
+  }
+
+  private forEachBottomUp(callback: (cell: Cell) => void) {
+    for (let x = 1; x < SIM_SIZE - 1; x++) {
+      for (let y = SIM_SIZE - 1; y > 0; y--) {
+        const cell = this.get([x, y]);
+        if (!cell.touched) {
+          callback(this.get([x, y]));
+        }
+      }
+    }
   }
 
   forEach(callback: (cell: Cell) => void) {
-    for (let x = 1; x < SIM_SIZE - 1; x++) {
-      for (let y = 1; y < SIM_SIZE - 1; y++) {
-        callback(this.get([x, y]));
-      }
+    if (ITERATION_METHOD === "TopDown") {
+      this.forEachTopDown(callback);
+    } else if (ITERATION_METHOD === "BottomUp") {
+      this.forEachBottomUp(callback);
+    } else {
+      this.forEachRandom(callback);
     }
   }
 
@@ -100,10 +141,15 @@ export class Engine {
     }
 
     const idx = SIM_SIZE * pos[1] + pos[0];
-    const value = cellDescriptions[type].value;
-    // TODO: If `Cell` becomes more complicated, we'll have to do more work than this.
-    this.cells[idx].type = type;
 
+    const cell = this.cells[idx];
+
+    // Update the cell state.
+    cell.type = type;
+    cell.lastTouched = this.generation;
+
+    // Update the graphics buffer.
+    const value = cellDescriptions[type].value;
     this.buffer[idx] = value;
   }
 

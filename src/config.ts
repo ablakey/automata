@@ -1,11 +1,5 @@
 export const FPS = 30;
 
-export const SIM_SIZE = 200;
+export const SIM_SIZE = 100;
 
-export const BUTTONS = [
-  { name: "Up", codes: ["ArrowUp", "KeyW"] },
-  { name: "Down", codes: ["ArrowDown", "KeyS"] },
-  { name: "Left", codes: ["ArrowLeft", "KeyA"] },
-  { name: "Right", codes: ["ArrowRight", "KeyD"] },
-  { name: "Action", codes: ["Space", "Enter"] },
-] as const;
+export const ITERATION_METHOD: "TopDown" | "BottomUp" | "Random" = "Random";

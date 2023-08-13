@@ -3,7 +3,8 @@ import { Engine } from "./Engine";
 function main() {
   const engine = new Engine();
 
-  engine.fillRect([10, 10], 180, 1, "Generator");
+  engine.fillRect([10, 10], 80, 1, "Generator");
+  // engine.set([10, 10], "Generator");
 
   // engine.forEach((k) => {
   //   if (Math.random() > 0.6) {

@@ -8,16 +8,18 @@ import { CellType } from "./cells";
  */
 export class Cell {
   private engine: Engine;
+  lastTouched = -1; // Generation that this cell was last updated.
   type: CellType;
   pos: Position;
 
-  constructor(pos: Position, engine: Engine) {
+  constructor(pos: Position, type: CellType, engine: Engine) {
     this.pos = pos;
     this.engine = engine;
+    this.type = type;
   }
 
-  get cell() {
-    return this.engine.get([this.pos[0], this.pos[1]]);
+  get touched() {
+    return this.lastTouched === this.engine.generation;
   }
 
   get top() {

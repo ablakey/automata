@@ -1,56 +1,55 @@
 import { Engine, Position } from "./Engine";
-import { CellName, cellNames } from "./cells";
+import { CellType } from "./cells";
 
 /**
  * Read-only accessor for a cell and its surrounding cells.
  * Getters are lazy for optimization. No point doing lookups for data we don't use. But still need to avoid repeating
  * the lookups.
  */
-export class Kernel {
+export class Cell {
   private engine: Engine;
-  private readonly x: number;
-  private readonly y: number;
+  type: CellType;
+  pos: Position;
 
   constructor(pos: Position, engine: Engine) {
-    this.x = pos[0];
-    this.y = pos[1];
+    this.pos = pos;
     this.engine = engine;
   }
 
   get cell() {
-    return this.engine.get([this.x, this.y]);
+    return this.engine.get([this.pos[0], this.pos[1]]);
   }
 
   get top() {
-    return this.engine.get([this.x, this.y - 1]);
+    return this.engine.get([this.pos[0], this.pos[1] - 1]);
   }
 
   get bot() {
-    return this.engine.get([this.x, this.y + 1]);
+    return this.engine.get([this.pos[0], this.pos[1] + 1]);
   }
 
   get left() {
-    return this.engine.get([this.x - 1, this.y]);
+    return this.engine.get([this.pos[0] - 1, this.pos[1]]);
   }
 
   get right() {
-    return this.engine.get([this.x + 1, this.y]);
+    return this.engine.get([this.pos[0] + 1, this.pos[1]]);
   }
 
   get topleft() {
-    return this.engine.get([this.x - 1, this.y - 1]);
+    return this.engine.get([this.pos[0] - 1, this.pos[1] - 1]);
   }
 
   get topright() {
-    return this.engine.get([this.x + 1, this.y - 1]);
+    return this.engine.get([this.pos[0] + 1, this.pos[1] - 1]);
   }
 
   get botleft() {
-    return this.engine.get([this.x - 1, this.y + 1]);
+    return this.engine.get([this.pos[0] - 1, this.pos[1] + 1]);
   }
 
   get botright() {
-    return this.engine.get([this.x + 1, this.y + 1]);
+    return this.engine.get([this.pos[0] + 1, this.pos[1] + 1]);
   }
 
   *[Symbol.iterator]() {
@@ -63,7 +62,7 @@ export class Kernel {
     yield this.botleft;
   }
 
-  getCount(name: CellName) {
+  getCount(name: CellType) {
     let count = 0;
     for (const n of this) {
       if (n.type === name) {

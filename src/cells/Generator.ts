@@ -1,10 +1,10 @@
 import { CellDescription } from ".";
+import { Cell } from "../Cell";
 import { Engine } from "../Engine";
-import { Kernel } from "../Kernel";
 
-function rule(kernel: Kernel, engine: Engine) {
-  if (kernel.bot.type === "Empty") {
-    engine.set(kernel.bot.pos, "Sand");
+function rule(cell: Cell, engine: Engine) {
+  if (cell.bot.type === "Empty") {
+    engine.set(cell.bot.pos, "Sand");
   }
 }
 

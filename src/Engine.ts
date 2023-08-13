@@ -1,10 +1,8 @@
-import { Kernel } from "./Kernel";
-import { CellName, cellDescriptions, cellValueMap } from "./cells";
+import { Cell } from "./Cell";
+import { CellType, cellDescriptions } from "./cells";
 import { SIM_SIZE, FPS } from "./config";
 
 export type Position = [number, number];
-
-type Cell = { pos: Position; type: CellName };
 
 export class Engine {
   // Image and data.
@@ -79,11 +77,10 @@ export class Engine {
     // this.ctx.putImageData(this.doubleBuffer.imageData, 0, 0);
   }
 
-  forEach(callback: (kernel: Kernel) => void) {
+  forEach(callback: (cell: Cell) => void) {
     for (let x = 1; x < SIM_SIZE - 1; x++) {
       for (let y = 1; y < SIM_SIZE - 1; y++) {
-        const kernel = new Kernel([x, y], this);
-        callback(kernel);
+        callback(this.get([x, y]));
       }
     }
   }
@@ -92,7 +89,7 @@ export class Engine {
     return this.cells[SIM_SIZE * pos[1] + pos[0]];
   }
 
-  set(pos: Position | Cell, type: CellName) {
+  set(pos: Position | Cell, type: CellType) {
     if (!Array.isArray(pos)) {
       pos = pos.pos;
     }
@@ -110,7 +107,7 @@ export class Engine {
     this.buffer[idx] = value;
   }
 
-  fillRect(pos: Position, width: number, height: number, type: CellName) {
+  fillRect(pos: Position, width: number, height: number, type: CellType) {
     for (let x = pos[0]; x < pos[0] + width; x++) {
       for (let y = pos[1]; y < pos[1] + height; y++) {
         this.set([x, y], type);

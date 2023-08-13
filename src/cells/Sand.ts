@@ -1,36 +1,34 @@
 import { CellDescription } from ".";
+import { Cell } from "../Cell";
 import { Engine } from "../Engine";
-import { Kernel } from "../Kernel";
 
-function rule(kernel: Kernel, engine: Engine) {
-  const { cell, bot, botleft, botright } = kernel;
-
-  if (bot.type === "Empty") {
+function rule(cell: Cell, engine: Engine) {
+  if (cell.bot.type === "Empty") {
     engine.set(cell.pos, "Empty");
-    engine.set(kernel.bot.pos, "Sand");
+    engine.set(cell.bot.pos, "Sand");
     return;
   }
 
-  const canFallLeft = botleft.type === "Empty";
-  const canFallRight = botright.type === "Empty";
+  const canFallLeft = cell.botleft.type === "Empty";
+  const canFallRight = cell.botright.type === "Empty";
 
   if (canFallLeft && canFallRight) {
     engine.set(cell.pos, "Empty");
-    engine.set(Math.random() > 0.5 ? kernel.botleft.pos : kernel.botright.pos, "Sand");
+    engine.set(Math.random() > 0.5 ? cell.botleft.pos : cell.botright.pos, "Sand");
     return;
   }
 
   // Fall left?
   if (canFallLeft) {
     engine.set(cell.pos, "Empty");
-    engine.set(kernel.botleft.pos, "Sand");
+    engine.set(cell.botleft.pos, "Sand");
     return;
   }
 
   // Fall right?
   if (canFallRight) {
     engine.set(cell.pos, "Empty");
-    engine.set(kernel.botright.pos, "Sand");
+    engine.set(cell.botright.pos, "Sand");
     return;
   }
 }

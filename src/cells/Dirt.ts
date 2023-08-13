@@ -1,8 +1,8 @@
 import { CellDescription } from ".";
+import { Cell } from "../Cell";
 import { Engine } from "../Engine";
-import { Kernel } from "../Kernel";
 
-function rule(kernel: Kernel, engine: Engine) {}
+function rule(cell: Cell, engine: Engine) {}
 
 export const Dirt: CellDescription = {
   value: 0xff004080,

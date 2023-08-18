@@ -28,13 +28,7 @@ body {
 
 body * {
   font-family: "Apple", serif;
-  max-width: 600px;
   color: #000;
-}
-
-#viewport {
-  width: 100%;
-  display: flex;
 }
 
 #canvas {

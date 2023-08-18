@@ -1,5 +1,5 @@
 import { Cell } from "./Cell";
-import { CellType, cellDescriptions } from "./cells";
+import { CellType, cellDict } from "./cells";
 import { SIM_SIZE, FPS, ITERATION_METHOD } from "./config";
 
 export type Position = [number, number];
@@ -15,6 +15,9 @@ export class Engine {
   // Simulation loop.
   private lastTime = 0;
   private accumulatedTime = 0;
+
+  // UI.
+  private selectedType: CellType = "Sand";
 
   constructor() {
     // Initialize image and data.
@@ -34,9 +37,23 @@ export class Engine {
         const type = isWall ? "Wall" : "Empty";
         const idx = y * SIM_SIZE + x;
         this.cells[idx] = new Cell([x, y], type, this);
-        this.buffer[idx] = cellDescriptions[type].value;
+        this.buffer[idx] = cellDict[type].value;
       }
     }
+
+    // Build the type selection UI.
+    const controlsEl = document.querySelector<HTMLDivElement>("#controls")!;
+
+    Object.entries(cellDict).forEach(([name, cellDef]) => {
+      if (cellDef.ui !== undefined) {
+        const el = document.createElement("div");
+        el.onclick = this.onTypeClick.bind(this, name);
+        el.innerText = cellDef.ui!.icon;
+        el.id = name;
+        el.className = this.selectedType === name ? "selected" : "";
+        controlsEl.appendChild(el);
+      }
+    });
 
     // Initialize and begin loop.
     requestAnimationFrame(this.frameRequestCallback.bind(this));
@@ -75,7 +92,7 @@ export class Engine {
   private tick() {
     this.generation++;
     this.forEach((cell) => {
-      cellDescriptions[cell.type].rule(cell, this);
+      cellDict[cell.type].rule(cell, this);
     });
 
     this.ctx.putImageData(this.imageData, 0, 0);
@@ -149,7 +166,7 @@ export class Engine {
     cell.lastTouched = this.generation;
 
     // Update the graphics buffer.
-    const value = cellDescriptions[type].value;
+    const value = cellDict[type].value;
     this.buffer[idx] = value;
   }
 
@@ -159,5 +176,11 @@ export class Engine {
         this.set([x, y], type);
       }
     }
+  }
+
+  onTypeClick(type: CellType) {
+    document.querySelector(`#${this.selectedType}`)!.className = "";
+    document.querySelector(`#${type}`)!.className = "selected";
+    this.selectedType = type;
   }
 }

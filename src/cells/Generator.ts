@@ -1,4 +1,4 @@
-import { CellDescription } from ".";
+import { CellDef } from ".";
 import { Cell } from "../Cell";
 import { Engine } from "../Engine";
 
@@ -8,7 +8,8 @@ function rule(cell: Cell, engine: Engine) {
   }
 }
 
-export const Generator: CellDescription = {
+export const Generator: CellDef = {
   value: 0xffff0000,
   rule,
+  ui: { icon: "✨" },
 };

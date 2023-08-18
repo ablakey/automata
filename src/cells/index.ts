@@ -6,9 +6,9 @@ import { Generator } from "./Generator";
 import { Sand } from "./Sand";
 import { Wall } from "./Wall";
 
-export type CellDescription = { value: number; rule: (cell: Cell, engine: Engine) => void };
+export type CellDef = { value: number; rule: (cell: Cell, engine: Engine) => void; ui?: { icon: string } };
 
-export const cellDescriptions = {
+export const cellDict = {
   Generator,
   Empty,
   Wall,
@@ -16,11 +16,4 @@ export const cellDescriptions = {
   Dirt,
 };
 
-export type CellType = keyof typeof cellDescriptions;
-
-export const cellNames = Object.keys(cellDescriptions) as CellType[];
-
-// For lookup when you have the value and want the name.
-export const cellValueMap = Object.fromEntries(
-  Object.entries(cellDescriptions).map(([name, desc]) => [desc.value, name])
-);
+export type CellType = keyof typeof cellDict;

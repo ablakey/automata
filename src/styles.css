@@ -15,11 +15,15 @@ html {
 }
 
 body {
-  margin: 4px;
-  height: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   background-color: #e6cea0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
 body * {
@@ -28,22 +32,16 @@ body * {
   color: #000;
 }
 
-#frame {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-}
-
 #viewport {
-  flex-grow: 1;
   width: 100%;
   display: flex;
-  justify-content: center;
 }
 
 #canvas {
+  background-color: #000;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
   image-rendering: pixelated;
 }
 

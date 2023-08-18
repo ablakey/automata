@@ -28,8 +28,6 @@ export class Engine {
     this.imageData = this.ctx.createImageData(SIM_SIZE, SIM_SIZE);
     this.buffer = new Uint32Array(this.imageData.data.buffer);
 
-    this.resizeCanvas();
-
     // Initialize the area with walls and empty.
     for (let x = 0; x < SIM_SIZE; x++) {
       for (let y = 0; y < SIM_SIZE; y++) {
@@ -57,23 +55,6 @@ export class Engine {
 
     // Initialize and begin loop.
     requestAnimationFrame(this.frameRequestCallback.bind(this));
-  }
-
-  /**
-   * Set up canvas dimensions. This is kinda janky but the CSS is driving me mad. The canvas needs to always be a
-   * square and fill as much space as posible without overflowing other elements.
-   *
-   * We allow flexbox to fill whatever space is leftover with #viewport, and then find the smallest dimension: width
-   * or height, and set the canvas to those. We then remove `flex-grow: 1` in order to give back any remaining space
-   * to the UI elements below.
-   */
-  private resizeCanvas() {
-    const canvas = document.querySelector<HTMLCanvasElement>("#canvas")!;
-    const frame = document.querySelector<HTMLDivElement>("#viewport")!;
-    const canvasSize = Math.min(frame.offsetWidth, frame.offsetHeight);
-    canvas.style.width = `${canvasSize}px`;
-    canvas.style.height = `${canvasSize}px`;
-    frame.style.flexGrow = "unset";
   }
 
   private frameRequestCallback(elapsed: number) {

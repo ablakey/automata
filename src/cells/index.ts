@@ -7,7 +7,13 @@ import { Sand } from "./Sand";
 import { Wall } from "./Wall";
 import { Water } from "./Water";
 
-export type CellDef = { colour: number | number[]; rule: (cell: Cell, engine: Engine) => void; ui?: { icon: string } };
+export type CellDef = {
+  colour: number | number[];
+  min?: number;
+  max?: number;
+  rule: (cell: Cell, engine: Engine) => void;
+  ui?: { icon: string; amount: number };
+};
 
 export const cellDict = {
   Generator,

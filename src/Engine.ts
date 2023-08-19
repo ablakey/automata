@@ -149,7 +149,7 @@ export class Engine {
     return this.cells[SIM_SIZE * pos[1] + pos[0]];
   }
 
-  set(pos: Position | Cell, type: CellType, value?: number) {
+  set(pos: Position | Cell, type: CellType, amount?: number) {
     if (!Array.isArray(pos)) {
       pos = pos.pos;
     }
@@ -162,11 +162,9 @@ export class Engine {
     const idx = SIM_SIZE * pos[1] + pos[0];
 
     const cell = this.cells[idx];
-
-    // Update the cell state.
-    cell.value = value ?? cell.type === type ? cell.value++ : 1;
     cell.type = type;
     cell.lastTouched = this.generation;
+    cell.fill(amount ?? 0);
 
     // Update the graphics buffer.
 
@@ -183,7 +181,8 @@ export class Engine {
   }
 
   onScreenClick(pos: Position) {
-    this.set(pos, this.selectedType);
+    const def = cellDict[this.selectedType];
+    this.set(pos, this.selectedType, def.ui!.amount);
   }
 
   onTypeClick(type: CellType) {

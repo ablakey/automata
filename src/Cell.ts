@@ -1,5 +1,6 @@
 import { Engine, Position } from "./Engine";
-import { CellType } from "./cells";
+import { CellType, cellDict } from "./cells";
+import { assert } from "ts-essentials";
 
 /**
  * Read-only accessor for a cell and its surrounding cells.
@@ -11,12 +12,39 @@ export class Cell {
   lastTouched = -1; // Generation that this cell was last updated.
   type: CellType;
   pos: Position;
-  value = 1;
+  value = 0;
 
   constructor(pos: Position, type: CellType, engine: Engine) {
     this.pos = pos;
     this.engine = engine;
     this.type = type;
+  }
+
+  is(...types: CellType[]) {
+    return types.includes(this.type);
+  }
+
+  fill(amount: number): number {
+    const capacity = (this.def.max ?? Number.POSITIVE_INFINITY) - this.value;
+    const filled = Math.min(amount, capacity);
+    this.value += filled;
+
+    assert(this.value >= 0);
+    assert(this.value <= (this.def.max ?? Number.POSITIVE_INFINITY));
+    return filled;
+  }
+
+  empty(amount: number): number {
+    const emptied = Math.min(amount, this.value);
+    this.value -= emptied;
+
+    assert(this.value >= 0);
+    assert(this.value <= (this.def.max ?? Number.POSITIVE_INFINITY));
+    return emptied;
+  }
+
+  get def() {
+    return cellDict[this.type];
   }
 
   get touched() {

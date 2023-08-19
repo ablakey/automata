@@ -3,38 +3,22 @@ import { Cell } from "../Cell";
 import { Engine } from "../Engine";
 
 function rule(cell: Cell, engine: Engine) {
-  if (cell.bot.type === "Empty") {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.bot.pos, "Water");
-    return;
+  // The cell below gets as much as possible.
+  if (cell.bot.is("Water")) {
+    cell.empty(cell.bot.fill(cell.value));
+  } else if (cell.bot.is("Empty")) {
+    engine.set(cell.bot, "Water");
+    cell.empty(cell.bot.fill(cell.value));
   }
 
-  const canFallLeft = cell.botleft.type === "Empty";
-  const canFallRight = cell.botright.type === "Empty";
-
-  if (canFallLeft && canFallRight) {
-    engine.set(cell.pos, "Empty");
-    engine.set(Math.random() > 0.5 ? cell.botleft.pos : cell.botright.pos, "Water");
-    return;
-  }
-
-  // Fall left?
-  if (canFallLeft) {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.botleft.pos, "Water");
-    return;
-  }
-
-  // Fall right?
-  if (canFallRight) {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.botright.pos, "Water");
-    return;
+  if (cell.value === 0) {
+    engine.set(cell, "Empty");
   }
 }
 
 export const Water: CellDef = {
   colour: 0xffff0000,
   rule,
-  ui: { icon: "💧" },
+  max: 5,
+  ui: { icon: "💧", amount: 1 },
 };

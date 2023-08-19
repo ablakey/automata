@@ -165,10 +165,10 @@ export class Engine {
     return this.cells[SIM_SIZE * pos[1] + pos[0]];
   }
 
-  fillRect(pos: Position, width: number, height: number, type: CellType) {
+  fillRect(pos: Position, width: number, height: number, type: CellType, amount?: number) {
     for (let x = pos[0]; x < pos[0] + width; x++) {
       for (let y = pos[1]; y < pos[1] + height; y++) {
-        this.get([x, y]).set(type);
+        this.get([x, y]).set(type, amount);
       }
     }
   }
@@ -180,6 +180,10 @@ export class Engine {
   }
 
   onScreenClick(pos: Position) {
+    if (pos[0] <= 0 || pos[1] <= 0 || pos[0] >= SIM_SIZE - 1 || pos[1] >= SIM_SIZE - 1) {
+      return;
+    }
+
     const def = cellDict[this.selectedType];
     this.get(pos).set(this.selectedType, def.ui!.amount);
   }

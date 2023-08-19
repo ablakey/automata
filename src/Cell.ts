@@ -24,6 +24,12 @@ export class Cell {
     return types.includes(this.type);
   }
 
+  feed(target: Cell, max?: number) {
+    const emptied = target.empty(Math.min(target.value, max ? Math.round(max) : Number.POSITIVE_INFINITY));
+    const filled = this.fill(emptied);
+    target.fill(emptied - filled);
+  }
+
   fill(amount: number): number {
     const capacity = (this.def.max ?? 1) - this.value;
     const filled = Math.min(amount, capacity);

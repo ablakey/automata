@@ -1,7 +1,8 @@
 import { Engine } from "./Engine";
 
 function main() {
-  new Engine();
+  const engine = new Engine();
+  engine.fillRect([50, 98], 1, 1, "Water", 5);
 
   // engine.fillRect([10, 10], 80, 1, "Generator");
   // engine.set([10, 10], "Generator");

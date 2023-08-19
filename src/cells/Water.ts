@@ -3,20 +3,63 @@ import { Cell } from "../Cell";
 
 function rule(cell: Cell) {
   // The cell below gets as much as possible.
-  if (cell.bot.is("Water")) {
-    cell.empty(cell.bot.fill(cell.value));
-  } else if (cell.bot.is("Empty")) {
+  if (cell.bot.is("Water", "Empty")) {
     cell.bot.set("Water");
-    cell.empty(cell.bot.fill(cell.value));
+    cell.bot.feed(cell);
+    // cell.empty(cell.bot.fill(cell.value));
   }
 
-  // Botleft and botright get half.
-  // if (cell.botleft.is("Water", "Empty")) {
-  //   // cell.set("Water");
-  //   // cell.botleft.fill();
+  let drainedBotLeft = false;
+
+  // Botleft gets half.
+  if (cell.value && cell.botleft.is("Water", "Empty")) {
+    cell.botleft.set("Water");
+    cell.botleft.feed(cell, cell.value / 2);
+    drainedBotLeft = true;
+  }
+
+  // Botright gets all that's left if we alreadt drained botleft, otherwise half.
+  if (cell.value && cell.botright.is("Water", "Empty")) {
+    cell.botright.set("Water");
+    cell.botright.feed(cell, drainedBotLeft ? cell.value : cell.value / 2);
+  }
+
+  function feedLeft() {
+    if (cell.value && cell.left.is("Water", "Empty") && cell.value > cell.left.value) {
+      cell.left.set("Water");
+      cell.left.feed(cell, 1);
+    }
+  }
+
+  function feedRight() {
+    if (cell.value && cell.right.is("Water", "Empty") && cell.value > cell.right.value) {
+      cell.right.set("Water");
+      cell.right.feed(cell, 1);
+    }
+  }
+
+  if (Math.random() > 0.5) {
+    feedLeft();
+    feedRight();
+  } else {
+    feedRight();
+    feedLeft();
+  }
+
+  // Left gets a third.
+  // if (cell.value && cell.left.is("Water", "Empty")) {
+  //   cell.left.set("Water");
+  //   cell.left.feed(cell, cell.value / 3);
   // }
 
-  // TODO: make this a general concept that if its value is 0, its empty at the end of the gen?
+  // // Right gets a third.
+  // if (cell.value && cell.right.is("Water", "Empty")) {
+  //   cell.right.set("Water");
+  //   cell.right.feed(cell, cell.value / 3);
+  // }
+
+  // Water wants to feed to the cell that's most empty. Round robin, perhaps?
+
   if (cell.value === 0) {
     cell.set("Empty");
   }

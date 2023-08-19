@@ -4,8 +4,8 @@ import { Engine } from "../Engine";
 
 function rule(cell: Cell, engine: Engine) {
   if (cell.bot.type === "Empty") {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.bot.pos, "Sand");
+    cell.set("Empty");
+    cell.bot.set("Sand");
     return;
   }
 
@@ -13,22 +13,26 @@ function rule(cell: Cell, engine: Engine) {
   const canFallRight = cell.botright.type === "Empty";
 
   if (canFallLeft && canFallRight) {
-    engine.set(cell.pos, "Empty");
-    engine.set(Math.random() > 0.5 ? cell.botleft.pos : cell.botright.pos, "Sand");
+    cell.set("Empty");
+    if (Math.random() > 0.5) {
+      cell.botleft.set("Sand");
+    } else {
+      cell.botright.set("Sand");
+    }
     return;
   }
 
   // Fall left?
   if (canFallLeft) {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.botleft.pos, "Sand");
+    cell.set("Empty");
+    cell.botleft.set("Sand");
     return;
   }
 
   // Fall right?
   if (canFallRight) {
-    engine.set(cell.pos, "Empty");
-    engine.set(cell.botright.pos, "Sand");
+    cell.set("Empty");
+    cell.botright.set("Sand");
     return;
   }
 }

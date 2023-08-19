@@ -1,15 +1,14 @@
 import { CellDef } from ".";
 import { Cell } from "../Cell";
-import { Engine } from "../Engine";
 
-function rule(cell: Cell, engine: Engine) {
+function rule(cell: Cell) {
   if (cell.bot.type === "Empty") {
-    engine.set(cell.bot.pos, "Sand");
+    cell.bot.set("Water", 1);
   }
 }
 
 export const Generator: CellDef = {
   colour: 0xffff0000,
   rule,
-  ui: { icon: "✨" },
+  ui: { icon: "✨", amount: 5 },
 };

@@ -1,4 +1,4 @@
-export const FPS = 60;
+export const FPS = 2;
 
 export const SIM_SIZE = 100;
 

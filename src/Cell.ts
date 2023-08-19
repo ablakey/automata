@@ -9,7 +9,7 @@ import { assert } from "ts-essentials";
  */
 export class Cell {
   private engine: Engine;
-  lastTouched = -1; // Generation that this cell was last updated.
+  lastChanged = -1; // Generation that this cell was last updated.
   type: CellType;
   pos: Position;
   value = 0;
@@ -25,12 +25,12 @@ export class Cell {
   }
 
   fill(amount: number): number {
-    const capacity = (this.def.max ?? Number.POSITIVE_INFINITY) - this.value;
+    const capacity = (this.def.max ?? 1) - this.value;
     const filled = Math.min(amount, capacity);
     this.value += filled;
 
     assert(this.value >= 0);
-    assert(this.value <= (this.def.max ?? Number.POSITIVE_INFINITY));
+    assert(this.value <= (this.def.max ?? 1));
     return filled;
   }
 
@@ -39,7 +39,7 @@ export class Cell {
     this.value -= emptied;
 
     assert(this.value >= 0);
-    assert(this.value <= (this.def.max ?? Number.POSITIVE_INFINITY));
+    assert(this.value <= (this.def.max ?? 1));
     return emptied;
   }
 
@@ -47,8 +47,8 @@ export class Cell {
     return cellDict[this.type];
   }
 
-  get touched() {
-    return this.lastTouched === this.engine.generation;
+  get changed() {
+    return this.lastChanged === this.engine.generation;
   }
 
   get top() {
@@ -101,5 +101,28 @@ export class Cell {
       }
     }
     return count;
+  }
+
+  set(type: CellType, amount?: number) {
+    // Cannot be changed if it's already that type.
+    if (this.type === type) {
+      return;
+    }
+
+    // Cannot change a cell if it's already been changed this generation.
+    if (this.lastChanged == this.engine.generation) {
+      return;
+    }
+
+    // Change it to the new value.
+    this.type = type;
+    this.lastChanged = this.engine.generation;
+    this.value = 0;
+    this.fill(amount ?? 1);
+
+    // Update the graphics buffer.
+    const c = this.def.colour;
+    const colour = Array.isArray(c) ? c[this.value] : c;
+    this.engine.draw(this.pos, colour);
   }
 }

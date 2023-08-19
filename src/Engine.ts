@@ -116,10 +116,7 @@ export class Engine {
   private forEachTopDown(callback: (cell: Cell) => void) {
     for (let x = 1; x < SIM_SIZE - 1; x++) {
       for (let y = 1; y < SIM_SIZE - 1; y++) {
-        const cell = this.get([x, y]);
-        if (!cell.touched) {
-          callback(this.get([x, y]));
-        }
+        callback(this.get([x, y]));
       }
     }
   }
@@ -127,10 +124,7 @@ export class Engine {
   private forEachBottomUp(callback: (cell: Cell) => void) {
     for (let x = 1; x < SIM_SIZE - 1; x++) {
       for (let y = SIM_SIZE - 1; y > 0; y--) {
-        const cell = this.get([x, y]);
-        if (!cell.touched) {
-          callback(this.get([x, y]));
-        }
+        callback(this.get([x, y]));
       }
     }
   }
@@ -149,40 +143,22 @@ export class Engine {
     return this.cells[SIM_SIZE * pos[1] + pos[0]];
   }
 
-  set(pos: Position | Cell, type: CellType, amount?: number) {
-    if (!Array.isArray(pos)) {
-      pos = pos.pos;
-    }
-
-    // Cannot set on wall or out of bounds.
-    if (pos[0] < 1 || pos[1] < 1 || pos[0] >= SIM_SIZE - 1 || pos[1] >= SIM_SIZE - 1) {
-      return;
-    }
-
-    const idx = SIM_SIZE * pos[1] + pos[0];
-
-    const cell = this.cells[idx];
-    cell.type = type;
-    cell.lastTouched = this.generation;
-    cell.fill(amount ?? 0);
-
-    // Update the graphics buffer.
-
-    const colour = cellDict[type].colour;
-    this.buffer[idx] = Array.isArray(colour) ? colour[cell.value] : colour;
-  }
-
   fillRect(pos: Position, width: number, height: number, type: CellType) {
     for (let x = pos[0]; x < pos[0] + width; x++) {
       for (let y = pos[1]; y < pos[1] + height; y++) {
-        this.set([x, y], type);
+        this.get([x, y]).set(type);
       }
     }
   }
 
+  draw(pos: Position, colour: number) {
+    const idx = SIM_SIZE * pos[1] + pos[0];
+    this.buffer[idx] = colour;
+  }
+
   onScreenClick(pos: Position) {
     const def = cellDict[this.selectedType];
-    this.set(pos, this.selectedType, def.ui!.amount);
+    this.get(pos).set(this.selectedType, def.ui!.amount);
   }
 
   onTypeClick(type: CellType) {

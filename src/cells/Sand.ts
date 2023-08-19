@@ -1,8 +1,7 @@
 import { CellDef } from ".";
 import { Cell } from "../Cell";
-import { Engine } from "../Engine";
 
-function rule(cell: Cell, engine: Engine) {
+function rule(cell: Cell) {
   if (cell.bot.type === "Empty") {
     cell.set("Empty");
     cell.bot.set("Sand");
@@ -38,7 +37,8 @@ function rule(cell: Cell, engine: Engine) {
 }
 
 export const Sand: CellDef = {
-  colour: 0xff267fee,
+  colour: "#ee7f26",
   rule,
-  ui: { icon: "🪨" },
+  max: 1,
+  ui: { icon: "🪨", amount: 1 },
 };

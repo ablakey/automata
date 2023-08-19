@@ -3,6 +3,7 @@ import { CellDef } from ".";
 function rule() {}
 
 export const Wall: CellDef = {
-  colour: 0xff000000,
+  colour: "#000000",
+  max: 1,
   rule,
 };

@@ -4,6 +4,23 @@ import { SIM_SIZE, FPS, ITERATION_METHOD } from "./config";
 
 export type Position = [number, number];
 
+// Memoized colour parser.
+const colourDict: Record<string, number> = {};
+function parseColour(colour: string): number {
+  if (colourDict[colour]) {
+    return colourDict[colour];
+  }
+
+  const c = colour.replace("#", "");
+  const r = c.substring(0, 2);
+  const g = c.substring(2, 4);
+  const b = c.substring(4, 6);
+  const abgr = `0xff${b}${g}${r}`;
+  const abgrNum = parseInt(abgr);
+  colourDict[colour] = abgrNum;
+  return abgrNum;
+}
+
 export class Engine {
   // Image and data
   public generation = 0;
@@ -35,7 +52,7 @@ export class Engine {
         const type = isWall ? "Wall" : "Empty";
         const idx = y * SIM_SIZE + x;
         this.cells[idx] = new Cell([x, y], type, this);
-        this.buffer[idx] = cellDict[type].colour as number; // Wall and Empty  ever have diferent colours.
+        this.draw([x, y], cellDict[type].colour as string); // Wall and Empty  ever have diferent colours.
       }
     }
 
@@ -82,6 +99,11 @@ export class Engine {
     const delta = elapsed - this.lastTime;
     this.lastTime = elapsed;
     this.accumulatedTime += delta;
+
+    // If lots of extra time accumulates, reset it. Probably tabbed away.
+    if (this.accumulatedTime > (1000 / FPS) * 2) {
+      this.accumulatedTime = 0;
+    }
 
     if (this.accumulatedTime > 1000 / FPS) {
       this.tick();
@@ -151,9 +173,10 @@ export class Engine {
     }
   }
 
-  draw(pos: Position, colour: number) {
+  draw(pos: Position, colour: string) {
+    // Convert RGB to ABGR (it's reversed in the buffer).;
     const idx = SIM_SIZE * pos[1] + pos[0];
-    this.buffer[idx] = colour;
+    this.buffer[idx] = parseColour(colour);
   }
 
   onScreenClick(pos: Position) {

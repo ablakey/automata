@@ -8,9 +8,8 @@ import { Wall } from "./Wall";
 import { Water } from "./Water";
 
 export type CellDef = {
-  colour: number | number[];
-  min?: number;
-  max?: number;
+  colour: string | string[];
+  max: number;
   rule: (cell: Cell, engine: Engine) => void;
   ui?: { icon: string; amount: number };
 };

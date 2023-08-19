@@ -23,7 +23,7 @@ function rule(cell: Cell) {
 }
 
 export const Water: CellDef = {
-  colour: 0xffff0000,
+  colour: ["#74ccf4", "#5abcd8", "#1ca3ec", "#2389da", "#0f5e9c"],
   rule,
   max: 5,
   ui: { icon: "💧", amount: 1 },

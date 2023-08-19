@@ -1,6 +1,7 @@
 import { CellDef } from ".";
 
 export const Dirt: CellDef = {
-  colour: 0xff004080,
+  colour: "#804000",
+  max: 1,
   rule: () => {},
 };

@@ -5,18 +5,18 @@ import { SIM_SIZE, FPS, ITERATION_METHOD } from "./config";
 export type Position = [number, number];
 
 export class Engine {
-  // Image and data.
+  // Image and data
   public generation = 0;
   private ctx: CanvasRenderingContext2D;
   private imageData: ImageData;
   private buffer: Uint32Array;
   private cells: Cell[] = [];
 
-  // Simulation loop.
+  // Simulation loop
   private lastTime = 0;
   private accumulatedTime = 0;
 
-  // UI.
+  // UI
   private selectedType: CellType = "Sand";
 
   constructor() {
@@ -28,7 +28,7 @@ export class Engine {
     this.imageData = this.ctx.createImageData(SIM_SIZE, SIM_SIZE);
     this.buffer = new Uint32Array(this.imageData.data.buffer);
 
-    // Initialize the area with walls and empty.
+    // Initialize the cells, adding a wall.
     for (let x = 0; x < SIM_SIZE; x++) {
       for (let y = 0; y < SIM_SIZE; y++) {
         const isWall = x === 0 || y === 0 || x === SIM_SIZE - 1 || y === SIM_SIZE - 1;
@@ -39,9 +39,31 @@ export class Engine {
       }
     }
 
+    // Set up mouse interaction with canvas.
+    (["mousedown", "mousemove"] as const).forEach((type) => {
+      canvas.addEventListener(type, (e) => {
+        if (!e.buttons) {
+          return;
+        }
+        const x = Math.floor((e.offsetX / canvas.offsetWidth) * SIM_SIZE);
+        const y = Math.floor((e.offsetY / canvas.offsetHeight) * SIM_SIZE);
+        this.onScreenClick([x, y]);
+      });
+    });
+
+    // Set up touch interaction with canvas.
+    (["touchmove", "touchstart"] as const).forEach((type) => {
+      canvas.addEventListener(type, (e) => {
+        const t0 = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor(((t0.clientX - rect.left) / canvas.offsetWidth) * SIM_SIZE);
+        const y = Math.floor(((t0.clientY - rect.top) / canvas.offsetHeight) * SIM_SIZE);
+        this.onScreenClick([x, y]);
+      });
+    });
+
     // Build the type selection UI.
     const controlsEl = document.querySelector<HTMLDivElement>("#controls")!;
-
     Object.entries(cellDict).forEach(([name, cellDef]) => {
       if (cellDef.ui !== undefined) {
         const el = document.createElement("div");
@@ -53,7 +75,6 @@ export class Engine {
       }
     });
 
-    // Initialize and begin loop.
     requestAnimationFrame(this.frameRequestCallback.bind(this));
   }
 
@@ -157,6 +178,10 @@ export class Engine {
         this.set([x, y], type);
       }
     }
+  }
+
+  onScreenClick(pos: Position) {
+    this.set(pos, this.selectedType);
   }
 
   onTypeClick(type: CellType) {

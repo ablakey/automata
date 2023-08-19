@@ -9,56 +9,41 @@ function rule(cell: Cell) {
     // cell.empty(cell.bot.fill(cell.value));
   }
 
-  let drainedBotLeft = false;
+  const intialValue = cell.value;
 
   // Botleft gets half.
   if (cell.value && cell.botleft.is("Water", "Empty")) {
     cell.botleft.set("Water");
-    cell.botleft.feed(cell, cell.value / 2);
-    drainedBotLeft = true;
+    cell.botleft.feed(cell, intialValue);
   }
 
   // Botright gets all that's left if we alreadt drained botleft, otherwise half.
   if (cell.value && cell.botright.is("Water", "Empty")) {
     cell.botright.set("Water");
-    cell.botright.feed(cell, drainedBotLeft ? cell.value : cell.value / 2);
+    cell.botright.feed(cell, intialValue);
   }
 
   function feedLeft() {
     if (cell.value && cell.left.is("Water", "Empty") && cell.value > cell.left.value) {
       cell.left.set("Water");
-      cell.left.feed(cell, 1);
+      cell.left.feed(cell, 3);
     }
   }
 
   function feedRight() {
     if (cell.value && cell.right.is("Water", "Empty") && cell.value > cell.right.value) {
       cell.right.set("Water");
-      cell.right.feed(cell, 1);
+      cell.right.feed(cell, 3);
     }
   }
 
-  if (Math.random() > 0.5) {
+  if (cell.left.value > cell.right.value) {
     feedLeft();
     feedRight();
   } else {
     feedRight();
     feedLeft();
   }
-
-  // Left gets a third.
-  // if (cell.value && cell.left.is("Water", "Empty")) {
-  //   cell.left.set("Water");
-  //   cell.left.feed(cell, cell.value / 3);
-  // }
-
-  // // Right gets a third.
-  // if (cell.value && cell.right.is("Water", "Empty")) {
-  //   cell.right.set("Water");
-  //   cell.right.feed(cell, cell.value / 3);
-  // }
-
-  // Water wants to feed to the cell that's most empty. Round robin, perhaps?
 
   if (cell.value === 0) {
     cell.set("Empty");

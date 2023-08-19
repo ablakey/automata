@@ -9,9 +9,9 @@ import { Water } from "./Water";
 
 export type CellDef = {
   colour: string | string[];
-  max: number;
+  max?: number;
   rule: (cell: Cell, engine: Engine) => void;
-  ui?: { icon: string; amount: number };
+  ui?: { icon: string; amount?: number };
 };
 
 export const cellDict = {

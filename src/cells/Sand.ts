@@ -39,6 +39,5 @@ function rule(cell: Cell) {
 export const Sand: CellDef = {
   colour: "#ee7f26",
   rule,
-  max: 1,
-  ui: { icon: "🪨", amount: 1 },
+  ui: { icon: "🪨" },
 };

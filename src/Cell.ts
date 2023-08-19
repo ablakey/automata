@@ -31,6 +31,9 @@ export class Cell {
 
     assert(this.value >= 0);
     assert(this.value <= (this.def.max ?? 1));
+
+    this.draw();
+
     return filled;
   }
 
@@ -40,6 +43,9 @@ export class Cell {
 
     assert(this.value >= 0);
     assert(this.value <= (this.def.max ?? 1));
+
+    this.draw();
+
     return emptied;
   }
 
@@ -109,8 +115,8 @@ export class Cell {
       return;
     }
 
-    // Cannot change a cell if it's already been changed this generation.
-    if (this.lastChanged == this.engine.generation) {
+    // Cannot change a cell if it's already been changed this generation, unless it's empty.
+    if (this.lastChanged == this.engine.generation && this.type !== "Empty") {
       return;
     }
 
@@ -118,11 +124,14 @@ export class Cell {
     this.type = type;
     this.lastChanged = this.engine.generation;
     this.value = 0;
-    this.fill(amount ?? 1);
+    this.fill(amount ?? 0);
 
-    // Update the graphics buffer.
+    this.draw();
+  }
+
+  private draw() {
     const c = this.def.colour;
-    const colour = Array.isArray(c) ? c[this.value] : c;
+    const colour = Array.isArray(c) ? c[Math.max(this.value - 1, 0)] : c;
     this.engine.draw(this.pos, colour);
   }
 }

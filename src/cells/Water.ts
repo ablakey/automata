@@ -11,10 +11,10 @@ function rule(cell: Cell) {
   }
 
   // Botleft and botright get half.
-  if (cell.botleft.is("Water", "Empty")) {
-    // cell.set("Water");
-    // cell.botleft.fill();
-  }
+  // if (cell.botleft.is("Water", "Empty")) {
+  //   // cell.set("Water");
+  //   // cell.botleft.fill();
+  // }
 
   // TODO: make this a general concept that if its value is 0, its empty at the end of the gen?
   if (cell.value === 0) {

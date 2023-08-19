@@ -9,7 +9,6 @@ function rule(cell: Cell) {
 
 export const Generator: CellDef = {
   colour: "#00ff00",
-  max: 1,
   rule,
-  ui: { icon: "✨", amount: 5 },
+  ui: { icon: "✨" },
 };

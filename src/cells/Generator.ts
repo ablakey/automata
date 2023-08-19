@@ -9,7 +9,7 @@ function rule(cell: Cell, engine: Engine) {
 }
 
 export const Generator: CellDef = {
-  value: 0xffff0000,
+  colour: 0xffff0000,
   rule,
   ui: { icon: "✨" },
 };

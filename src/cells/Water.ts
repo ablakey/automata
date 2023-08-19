@@ -5,7 +5,7 @@ import { Engine } from "../Engine";
 function rule(cell: Cell, engine: Engine) {
   if (cell.bot.type === "Empty") {
     engine.set(cell.pos, "Empty");
-    engine.set(cell.bot.pos, "Sand");
+    engine.set(cell.bot.pos, "Water");
     return;
   }
 
@@ -14,27 +14,27 @@ function rule(cell: Cell, engine: Engine) {
 
   if (canFallLeft && canFallRight) {
     engine.set(cell.pos, "Empty");
-    engine.set(Math.random() > 0.5 ? cell.botleft.pos : cell.botright.pos, "Sand");
+    engine.set(Math.random() > 0.5 ? cell.botleft.pos : cell.botright.pos, "Water");
     return;
   }
 
   // Fall left?
   if (canFallLeft) {
     engine.set(cell.pos, "Empty");
-    engine.set(cell.botleft.pos, "Sand");
+    engine.set(cell.botleft.pos, "Water");
     return;
   }
 
   // Fall right?
   if (canFallRight) {
     engine.set(cell.pos, "Empty");
-    engine.set(cell.botright.pos, "Sand");
+    engine.set(cell.botright.pos, "Water");
     return;
   }
 }
 
-export const Sand: CellDef = {
-  colour: 0xff267fee,
+export const Water: CellDef = {
+  colour: 0xffff0000,
   rule,
-  ui: { icon: "🪨" },
+  ui: { icon: "💧" },
 };

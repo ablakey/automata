@@ -5,8 +5,9 @@ import { Empty } from "./Empty";
 import { Generator } from "./Generator";
 import { Sand } from "./Sand";
 import { Wall } from "./Wall";
+import { Water } from "./Water";
 
-export type CellDef = { value: number; rule: (cell: Cell, engine: Engine) => void; ui?: { icon: string } };
+export type CellDef = { colour: number | number[]; rule: (cell: Cell, engine: Engine) => void; ui?: { icon: string } };
 
 export const cellDict = {
   Generator,
@@ -14,6 +15,7 @@ export const cellDict = {
   Wall,
   Sand,
   Dirt,
+  Water,
 };
 
 export type CellType = keyof typeof cellDict;

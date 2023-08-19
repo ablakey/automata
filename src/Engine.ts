@@ -35,7 +35,7 @@ export class Engine {
         const type = isWall ? "Wall" : "Empty";
         const idx = y * SIM_SIZE + x;
         this.cells[idx] = new Cell([x, y], type, this);
-        this.buffer[idx] = cellDict[type].value;
+        this.buffer[idx] = cellDict[type].colour as number; // Wall and Empty  ever have diferent colours.
       }
     }
 
@@ -149,7 +149,7 @@ export class Engine {
     return this.cells[SIM_SIZE * pos[1] + pos[0]];
   }
 
-  set(pos: Position | Cell, type: CellType) {
+  set(pos: Position | Cell, type: CellType, value?: number) {
     if (!Array.isArray(pos)) {
       pos = pos.pos;
     }
@@ -164,12 +164,14 @@ export class Engine {
     const cell = this.cells[idx];
 
     // Update the cell state.
+    cell.value = value ?? cell.type === type ? cell.value++ : 1;
     cell.type = type;
     cell.lastTouched = this.generation;
 
     // Update the graphics buffer.
-    const value = cellDict[type].value;
-    this.buffer[idx] = value;
+
+    const colour = cellDict[type].colour;
+    this.buffer[idx] = Array.isArray(colour) ? colour[cell.value] : colour;
   }
 
   fillRect(pos: Position, width: number, height: number, type: CellType) {

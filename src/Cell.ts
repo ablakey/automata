@@ -11,6 +11,7 @@ export class Cell {
   lastTouched = -1; // Generation that this cell was last updated.
   type: CellType;
   pos: Position;
+  value = 1;
 
   constructor(pos: Position, type: CellType, engine: Engine) {
     this.pos = pos;

@@ -1,6 +1,6 @@
 import { Cell } from "./Cell";
 import { CellType, cellDict } from "./cells";
-import { SIM_SIZE, FPS, ITERATION_METHOD } from "./config";
+import { SIM_SIZE, FPS } from "./config";
 
 export type Position = [number, number];
 
@@ -116,48 +116,19 @@ export class Engine {
   private tick() {
     this.generation++;
     this.forEach((cell) => {
-      cellDict[cell.type].rule(cell, this);
+      if (!cell.changed) {
+        cellDict[cell.type].rule(cell, this);
+      }
     });
 
     this.ctx.putImageData(this.imageData, 0, 0);
   }
 
-  private forEachRandom(callback: (cell: Cell) => void) {
-    const arr = Array.from(Array(SIM_SIZE * SIM_SIZE).keys());
-
-    let j: number, x: number, index: number;
-    for (index = arr.length - 1; index > 0; index--) {
-      j = Math.floor(Math.random() * (index + 1));
-      x = arr[index];
-      arr[index] = arr[j];
-      arr[j] = x;
-    }
-    arr.forEach((c) => callback(this.cells[c]));
-  }
-
-  private forEachTopDown(callback: (cell: Cell) => void) {
-    for (let x = 1; x < SIM_SIZE - 1; x++) {
-      for (let y = 1; y < SIM_SIZE - 1; y++) {
-        callback(this.get([x, y]));
-      }
-    }
-  }
-
-  private forEachBottomUp(callback: (cell: Cell) => void) {
-    for (let x = 1; x < SIM_SIZE - 1; x++) {
-      for (let y = SIM_SIZE - 1; y > 0; y--) {
-        callback(this.get([x, y]));
-      }
-    }
-  }
-
   forEach(callback: (cell: Cell) => void) {
-    if (ITERATION_METHOD === "TopDown") {
-      this.forEachTopDown(callback);
-    } else if (ITERATION_METHOD === "BottomUp") {
-      this.forEachBottomUp(callback);
-    } else {
-      this.forEachRandom(callback);
+    for (let x = 1; x < SIM_SIZE - 1; x++) {
+      for (let y = SIM_SIZE - 2; y > 0; y--) {
+        callback(this.get([x, y]));
+      }
     }
   }
 

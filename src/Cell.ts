@@ -20,41 +20,6 @@ export class Cell {
     this.type = type;
   }
 
-  is(...types: CellType[]) {
-    return types.includes(this.type);
-  }
-
-  feed(target: Cell, max?: number) {
-    const emptied = target.empty(Math.min(target.value, max ? Math.round(max) : Number.POSITIVE_INFINITY));
-    const filled = this.fill(emptied);
-    target.fill(emptied - filled);
-  }
-
-  fill(amount: number): number {
-    const capacity = (this.def.max ?? 1) - this.value;
-    const filled = Math.min(amount, capacity);
-    this.value += filled;
-
-    assert(this.value >= 0);
-    assert(this.value <= (this.def.max ?? 1));
-
-    this.draw();
-
-    return filled;
-  }
-
-  empty(amount: number): number {
-    const emptied = Math.min(amount, this.value);
-    this.value -= emptied;
-
-    assert(this.value >= 0);
-    assert(this.value <= (this.def.max ?? 1));
-
-    this.draw();
-
-    return emptied;
-  }
-
   get def() {
     return cellDict[this.type];
   }
@@ -103,6 +68,7 @@ export class Cell {
     yield this.botright;
     yield this.bot;
     yield this.botleft;
+    yield this.left;
   }
 
   getCount(name: CellType) {
@@ -121,11 +87,6 @@ export class Cell {
       return;
     }
 
-    // Cannot change a cell if it's already been changed this generation, unless it's empty.
-    if (this.lastChanged == this.engine.generation && this.type !== "Empty") {
-      return;
-    }
-
     // Change it to the new value.
     this.type = type;
     this.lastChanged = this.engine.generation;
@@ -133,6 +94,41 @@ export class Cell {
     this.fill(amount ?? 0);
 
     this.draw();
+  }
+
+  is(...types: CellType[]) {
+    return types.includes(this.type);
+  }
+
+  feed(target: Cell, max?: number) {
+    const emptied = target.empty(Math.min(target.value, max ? Math.round(max) : Number.POSITIVE_INFINITY));
+    const filled = this.fill(emptied);
+    target.fill(emptied - filled);
+  }
+
+  fill(amount: number): number {
+    const capacity = (this.def.max ?? 1) - this.value;
+    const filled = Math.min(amount, capacity);
+    this.value += filled;
+
+    assert(this.value >= 0);
+    assert(this.value <= (this.def.max ?? 1));
+
+    this.draw();
+
+    return filled;
+  }
+
+  empty(amount: number): number {
+    const emptied = Math.min(amount, this.value);
+    this.value -= emptied;
+
+    assert(this.value >= 0);
+    assert(this.value <= (this.def.max ?? 1));
+
+    this.draw();
+
+    return emptied;
   }
 
   private draw() {

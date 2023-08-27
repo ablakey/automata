@@ -6,7 +6,6 @@ function rule(cell: Cell) {
   if (cell.bot.is("Water", "Empty")) {
     cell.bot.set("Water");
     cell.bot.feed(cell);
-    // cell.empty(cell.bot.fill(cell.value));
   }
 
   const intialValue = cell.value;
@@ -17,7 +16,7 @@ function rule(cell: Cell) {
     cell.botleft.feed(cell, intialValue);
   }
 
-  // Botright gets all that's left if we alreadt drained botleft, otherwise half.
+  // Botright gets all that's left if we already drained botleft, otherwise half.
   if (cell.value && cell.botright.is("Water", "Empty")) {
     cell.botright.set("Water");
     cell.botright.feed(cell, intialValue);
@@ -26,14 +25,14 @@ function rule(cell: Cell) {
   function feedLeft() {
     if (cell.value && cell.left.is("Water", "Empty") && cell.value > cell.left.value) {
       cell.left.set("Water");
-      cell.left.feed(cell, 3);
+      cell.left.feed(cell, 1);
     }
   }
 
   function feedRight() {
     if (cell.value && cell.right.is("Water", "Empty") && cell.value > cell.right.value) {
       cell.right.set("Water");
-      cell.right.feed(cell, 3);
+      cell.right.feed(cell, 1);
     }
   }
 
